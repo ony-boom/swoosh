@@ -42,6 +42,9 @@ nix profile add github:ony-boom/swoosh
 nix profile install github:ony-boom/swoosh
 ```
 
+## Usage
+Just run `swoosh` in your terminal or autostart it in your window manager.
+
 **Roadmap:**
 
 - [ ] List available audio inputs (sources)
