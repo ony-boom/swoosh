@@ -11,6 +11,8 @@ import (
 // Store menu items globally so they can be cleared
 var menuItems []*tray.MenuItem
 
+const MAX_LENGTH = 32 // Maximum length for a menu item label
+
 func clearMenuItems() {
 	for _, item := range menuItems {
 		if item != nil {
@@ -45,9 +47,15 @@ func renderSinks(item *tray.Item, p *pulse.Pulse) {
 		if p.IsDefaultSink(sink) {
 			defaultState = tray.On
 		}
+
+		label := " " + sink.Name // Add a space for better readability
+		if len(label) > MAX_LENGTH {
+			label = label[:MAX_LENGTH-3] + "..."
+		}
+
 		sinkItem, _ := item.Menu().AddChild(
 			tray.MenuItemToggleType(tray.Radio),
-			tray.MenuItemLabel(sink.Name),
+			tray.MenuItemLabel(label),
 			tray.MenuItemToggleState(defaultState),
 		)
 		addMenuItem(sinkItem)
