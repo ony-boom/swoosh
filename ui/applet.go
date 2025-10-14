@@ -1,7 +1,6 @@
 package ui
 
 import (
-	// "fmt"
 	"log"
 
 	"deedles.dev/tray"
@@ -24,7 +23,7 @@ func Init(p *pulse.Pulse) {
 
 	// Set the global done channel for quit functionality
 	setGlobalDoneChannel(done)
-	
+
 	// Start pulse audio monitoring to detect changes
 	startPulseMonitoring(item, p)
 
@@ -52,4 +51,3 @@ func Init(p *pulse.Pulse) {
 
 	<-done
 }
-

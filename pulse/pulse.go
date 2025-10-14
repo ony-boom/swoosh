@@ -2,20 +2,48 @@ package pulse
 
 import (
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/jfreymuth/pulse"
 	"github.com/jfreymuth/pulse/proto"
 )
 
 func NewPulse() (*Pulse, error) {
-	c, err := pulse.NewClient()
-	if err != nil {
-		return nil, fmt.Errorf("failed to initiate a connection to audio server: %v", err)
+	return NewPulseWithRetry(30*time.Second, 500*time.Millisecond)
+}
+
+func NewPulseWithRetry(maxWaitTime, initialDelay time.Duration) (*Pulse, error) {
+	var c *pulse.Client
+	var err error
+
+	delay := initialDelay
+	maxDelay := 5 * time.Second
+	start := time.Now()
+
+	log.Printf("Attempting to connect to PulseAudio...")
+
+	for time.Since(start) < maxWaitTime {
+		c, err = pulse.NewClient()
+		if err == nil {
+			return &Pulse{
+				client: c,
+			}, nil
+		}
+		time.Sleep(delay)
+		delay = min(delay*2, maxDelay)
 	}
 
-	return &Pulse{
-		client: c,
-	}, nil
+	return nil, fmt.Errorf("failed to connect to PulseAudio after %v: %v", maxWaitTime, err)
+}
+
+func IsTheAudioServerAvailable() bool {
+	c, err := pulse.NewClient()
+	if err != nil {
+		return false
+	}
+	c.Close()
+	return true
 }
 
 func simpleSinkFromPulse(pulseSink *pulse.Sink) *SimpleSink {

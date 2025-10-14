@@ -1,0 +1,18 @@
+[Unit]
+Description=Swoosh Audio Output Switcher
+After=graphical-session.target pulseaudio.service
+Wants=pulseaudio.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/swoosh
+Restart=on-failure
+RestartSec=3
+Environment=DISPLAY=:0
+
+# Ensure the service stops when the user session ends
+KillMode=process
+
+[Install]
+WantedBy=default.target

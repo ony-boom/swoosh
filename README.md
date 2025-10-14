@@ -43,7 +43,54 @@ nix profile install github:ony-boom/swoosh
 ```
 
 ## Usage
+
 Just run `swoosh` in your terminal or autostart it in your window manager.
+
+### Autostart with systemd (Recommended)
+
+To avoid startup issues where swoosh starts before PulseAudio is ready, you can use the provided systemd service:
+
+1. Copy the service file to your user systemd directory:
+
+```bash
+mkdir -p ~/.config/systemd/user
+# copy the service file or download it from the repo
+cp assets/swoosh.service ~/.config/systemd/user/
+```
+
+2. Update the ExecStart path in the service file to match your installation:
+
+```bash
+# If installed with go install
+sed -i 's|%h/.local/bin/swoosh|%h/go/bin/swoosh|' ~/.config/systemd/user/swoosh.service
+
+# If installed with nix
+sed -i 's|%h/.local/bin/swoosh|/usr/bin/env swoosh|' ~/.config/systemd/user/swoosh.service
+```
+
+3. Enable and start the service:
+
+```bash
+systemctl --user enable swoosh.service
+systemctl --user start swoosh.service
+```
+
+### Manual startup
+
+If you prefer to start swoosh manually or from your window manager, you can set a startup delay to ensure services are ready:
+
+```bash
+# Wait 5 seconds before starting
+SWOOSH_STARTUP_DELAY=5 swoosh
+```
+
+## Troubleshooting
+
+**Application crashes on startup:**
+
+- Make sure your audio server (PulseAudio or PipeWire) is running
+- Try with a startup delay: `SWOOSH_STARTUP_DELAY=5 swoosh`
+- Use the systemd service for proper dependency ordering
 
 **Roadmap:**
 
