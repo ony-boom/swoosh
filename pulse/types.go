@@ -4,8 +4,6 @@ import (
 	"github.com/jfreymuth/pulse"
 )
 
-
-
 type Pulse struct {
 	client *pulse.Client
 }
