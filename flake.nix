@@ -22,7 +22,7 @@
         packages.default = pkgs.buildGoModule {
           src = self;
           name = "swoosh";
-          version = "0.1.0";
+          version = "0.1.1";
           vendorHash = "sha256-bwHGOu5EGUU7Uw8Fe5Yswv8tN9uxFgjtVpx4wncmHAI=";
         };
 

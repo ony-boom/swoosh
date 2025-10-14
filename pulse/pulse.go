@@ -2,7 +2,6 @@ package pulse
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/jfreymuth/pulse"
@@ -20,8 +19,6 @@ func NewPulseWithRetry(maxWaitTime, initialDelay time.Duration) (*Pulse, error) 
 	delay := initialDelay
 	maxDelay := 5 * time.Second
 	start := time.Now()
-
-	log.Printf("Attempting to connect to PulseAudio...")
 
 	for time.Since(start) < maxWaitTime {
 		c, err = pulse.NewClient()
