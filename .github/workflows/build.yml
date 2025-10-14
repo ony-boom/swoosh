@@ -16,6 +16,7 @@ jobs:
       matrix:
         goos: [linux]
         goarch: [amd64, arm64]
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +29,6 @@ jobs:
         run: |
           mkdir -p dist
           output_name=swoosh-${{ matrix.goos }}-${{ matrix.goarch }}
-
           GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/$output_name
 
       - name: Upload binaries to release
