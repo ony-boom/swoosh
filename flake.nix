@@ -33,15 +33,11 @@
         };
 
         nixosModules.default =
-          { config, pkgs, ... }:
+          { config, lib, ... }:
           {
-            options.programs.swoosh.enable = {
-              type = pkgs.lib.types.bool;
-              default = false;
-              description = "Enable Swoosh Audio Output Switcher user service";
-            };
+            options.programs.swoosh.enable = lib.mkEnableOption "Swoosh Audio Output Switcher user service";
 
-            config = pkgs.lib.mkIf config.programs.swoosh.enable {
+            config = lib.mkIf config.programs.swoosh.enable {
               systemd.user.services.swoosh = {
                 description = "Swoosh Audio Output Switcher";
                 after = [
