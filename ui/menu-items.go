@@ -5,46 +5,43 @@ import (
 	"time"
 
 	"deedles.dev/tray"
-	"github.com/ony-boom/swoosh/pulse"
 )
-
-// Store menu items globally so they can be cleared
-var menuItems []*tray.MenuItem
 
 const MAX_LENGTH = 32 // Maximum length for a menu item label
 
-func clearMenuItems() {
-	for _, item := range menuItems {
+func (ui *UI) clearMenuItems() {
+	for _, item := range ui.menuItems {
 		if item != nil {
 			item.Remove()
 		}
 	}
-	menuItems = nil
+	ui.menuItems = nil
 }
 
-func addMenuItem(item *tray.MenuItem) {
-	menuItems = append(menuItems, item)
+func (ui *UI) addMenuItem(item *tray.MenuItem) {
+	ui.menuItems = append(ui.menuItems, item)
 }
 
-func renderSinks(item *tray.Item, p *pulse.Pulse) {
-	sinks, err := p.ListSinks()
-	sinksHeader, _ := item.Menu().AddChild(
+func (ui *UI) renderSinks() {
+	sinks, err := ui.pulse.ListSinks()
+	sinksHeader, _ := ui.item.Menu().AddChild(
 		tray.MenuItemLabel("Sinks"),
 		tray.MenuItemEnabled(false),
 	)
-	addMenuItem(sinksHeader)
+	ui.addMenuItem(sinksHeader)
+
 	if err != nil {
-		errorItem, _ := item.Menu().AddChild(
+		errorItem, _ := ui.item.Menu().AddChild(
 			tray.MenuItemLabel("Error loading sinks"),
 		)
-		addMenuItem(errorItem)
+		ui.addMenuItem(errorItem)
 		return
 	}
 
 	var sinkItems []*tray.MenuItem
 	for i, sink := range sinks {
 		defaultState := tray.Off
-		if p.IsDefaultSink(sink) {
+		if ui.pulse.IsDefaultSink(sink) {
 			defaultState = tray.On
 		}
 
@@ -53,12 +50,12 @@ func renderSinks(item *tray.Item, p *pulse.Pulse) {
 			label = label[:MAX_LENGTH-3] + "..."
 		}
 
-		sinkItem, _ := item.Menu().AddChild(
+		sinkItem, _ := ui.item.Menu().AddChild(
 			tray.MenuItemToggleType(tray.Radio),
 			tray.MenuItemLabel(label),
 			tray.MenuItemToggleState(defaultState),
 		)
-		addMenuItem(sinkItem)
+		ui.addMenuItem(sinkItem)
 
 		sinkItem.RequestActivation(uint32(i))
 
@@ -74,7 +71,7 @@ func renderSinks(item *tray.Item, p *pulse.Pulse) {
 					other.SetProps(tray.MenuItemToggleState(tray.Off))
 				}
 			}
-			if err := p.SetDefaultSink(currentSink.ID); err != nil {
+			if err := ui.pulse.SetDefaultSink(currentSink.ID); err != nil {
 				log.Fatalf("Failed to set default sink: %v", err)
 			}
 			// Update the monitoring state to trigger refresh on next check
@@ -83,35 +80,36 @@ func renderSinks(item *tray.Item, p *pulse.Pulse) {
 				time.Sleep(100 * time.Millisecond)
 				// Force an update by clearing the last known sink
 				// This will cause the monitoring to detect a change
-				resetMonitoringState()
+				ui.resetMonitoringState()
 			}()
 			return nil
 		}))
 	}
 }
 
-func renderOptions(item *tray.Item, p *pulse.Pulse) {
-	separator, _ := item.Menu().AddChild(tray.MenuItemType(tray.Separator))
-	addMenuItem(separator)
+func (ui *UI) renderOptions() {
+	separator, _ := ui.item.Menu().AddChild(tray.MenuItemType(tray.Separator))
+	ui.addMenuItem(separator)
 
-	refreshItem, _ := item.Menu().AddChild(
+	refreshItem, _ := ui.item.Menu().AddChild(
 		tray.MenuItemLabel("Refresh"),
 		tray.MenuItemHandler(tray.ClickedHandler(func(data any, timestamp uint32) error {
-			triggerManualRefresh(item, p)
+			ui.triggerManualRefresh()
 			return nil
 		})),
 	)
-	addMenuItem(refreshItem)
 
-	quitItem, _ := item.Menu().AddChild(
+	ui.addMenuItem(refreshItem)
+
+	quitItem, _ := ui.item.Menu().AddChild(
 		tray.MenuItemLabel("Quit"),
 		tray.MenuItemHandler(tray.ClickedHandler(func(data any, timestamp uint32) error {
-			stopPulseMonitoring()
-			if globalDoneChannel != nil {
-				close(globalDoneChannel)
+			ui.stopPulseMonitoring()
+			if ui.state.done != nil {
+				close(ui.state.done)
 			}
 			return nil
 		})),
 	)
-	addMenuItem(quitItem)
+	ui.addMenuItem(quitItem)
 }

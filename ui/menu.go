@@ -4,12 +4,9 @@ import (
 	"log"
 
 	"deedles.dev/tray"
-	"github.com/ony-boom/swoosh/pulse"
 )
 
-func Init(p *pulse.Pulse) {
-	done := make(chan struct{})
-
+func newTray() *tray.Item {
 	item, err := tray.New(
 		tray.ItemID("ony.world.swoosh"),
 		tray.ItemTitle("Switch audio sinks/sources"),
@@ -20,21 +17,9 @@ func Init(p *pulse.Pulse) {
 			return nil
 		})),
 	)
-
-	// Set the global done channel for quit functionality
-	setGlobalDoneChannel(done)
-
-	// Start pulse audio monitoring to detect changes
-	startPulseMonitoring(item, p)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer item.Close()
-
-	renderSinks(item, p)
-	renderOptions(item, p)
-
-	<-done
+	return item
 }

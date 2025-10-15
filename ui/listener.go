@@ -2,91 +2,82 @@ package ui
 
 import (
 	"time"
-
-	"deedles.dev/tray"
-	"github.com/ony-boom/swoosh/pulse"
 )
 
-var (
-	lastKnownDefaultSink string
-	refreshTicker        *time.Ticker
-	stopRefresh          chan bool
-	globalDoneChannel    chan struct{}
-)
-
-func startPulseMonitoring(item *tray.Item, p *pulse.Pulse) {
-	sinks, err := p.ListSinks()
+func (ui *UI) startPulseMonitoring() {
+	sinks, err := ui.pulse.ListSinks()
 	if err == nil {
 		for _, sink := range sinks {
-			if p.IsDefaultSink(sink) {
-				lastKnownDefaultSink = sink.ID
+			if ui.pulse.IsDefaultSink(sink) {
+				ui.state.lastKnownDefaultSink = sink.ID
 				break
 			}
 		}
 	}
 
-	refreshTicker = time.NewTicker(p.GetPollInterval())
-	stopRefresh = make(chan bool, 1)
+	ui.state.refreshTicker = time.NewTicker(ui.pulse.GetPollInterval())
+	ui.state.stopRefresh = make(chan bool, 1)
 
 	go func() {
 		for {
 			select {
-			case <-refreshTicker.C:
-				checkForPulseChanges(item, p)
-			case <-stopRefresh:
+			case <-ui.state.refreshTicker.C:
+				ui.checkForPulseChanges()
+			case <-ui.state.stopRefresh:
 				return
 			}
 		}
 	}()
 }
 
-func stopPulseMonitoring() {
-	if refreshTicker != nil {
-		refreshTicker.Stop()
+func (ui *UI) stopPulseMonitoring() {
+	if ui.state.refreshTicker != nil {
+		ui.state.refreshTicker.Stop()
 	}
-	if stopRefresh != nil {
+	if ui.state.stopRefresh != nil {
 		select {
-		case stopRefresh <- true:
+		case ui.state.stopRefresh <- true:
 		default:
 		}
 	}
 }
 
-func checkForPulseChanges(item *tray.Item, p *pulse.Pulse) {
-	sinks, err := p.ListSinks()
+func (ui *UI) checkForPulseChanges() {
+	sinks, err := ui.pulse.ListSinks()
 	if err != nil {
 		return
 	}
 
 	var currentDefaultSink string
 	for _, sink := range sinks {
-		if p.IsDefaultSink(sink) {
+		if ui.pulse.IsDefaultSink(sink) {
 			currentDefaultSink = sink.ID
 			break
 		}
 	}
 
-	if currentDefaultSink != lastKnownDefaultSink {
-		lastKnownDefaultSink = currentDefaultSink
-		refreshMenu(item, p)
+	if currentDefaultSink != ui.state.lastKnownDefaultSink {
+		ui.state.lastKnownDefaultSink = currentDefaultSink
+		ui.refreshMenu()
+	}
+
+	// If the number of sinks has changed, refresh the menu
+	if len(sinks) != len(ui.menuItems)-3 {
+		ui.refreshMenu()
 	}
 }
 
-func refreshMenu(item *tray.Item, p *pulse.Pulse) {
-	clearMenuItems()
-	renderSinks(item, p)
-	renderOptions(item, p)
+func (ui *UI) refreshMenu() {
+	ui.clearMenuItems()
+	ui.renderSinks()
+	ui.renderOptions()
 }
 
-func triggerManualRefresh(item *tray.Item, p *pulse.Pulse) {
-	p.UpdateConfig()
-	refreshMenu(item, p)
+func (ui *UI) triggerManualRefresh() {
+	ui.pulse.UpdateConfig()
+	ui.refreshMenu()
 }
 
-func resetMonitoringState() {
-	lastKnownDefaultSink = ""
-}
-
-func setGlobalDoneChannel(done chan struct{}) {
-	globalDoneChannel = done
+func (ui *UI) resetMonitoringState() {
+	ui.state.lastKnownDefaultSink = ""
 }
