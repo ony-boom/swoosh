@@ -19,6 +19,17 @@ Using the package from the flake:
   inputs.swoosh.inputs.nixpkgs.follows = "nixpkgs";
 }
 
+# as nixos module
+{
+  modules = [
+    # ...
+    inputs.swoosh.nixosModules.x86_64-linux.swoosh # or aarch64-linux
+    {
+      programs.swoosh.enable = true;
+    }
+  ];
+}
+
 # somewhere in your packages if nixos
 {
   environment.systemPackages = with pkgs; [
