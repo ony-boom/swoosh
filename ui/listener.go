@@ -25,7 +25,7 @@ func startPulseMonitoring(item *tray.Item, p *pulse.Pulse) {
 		}
 	}
 
-	refreshTicker = time.NewTicker(2 * time.Second)
+	refreshTicker = time.NewTicker(p.GetPollInterval())
 	stopRefresh = make(chan bool, 1)
 
 	go func() {
@@ -74,28 +74,14 @@ func checkForPulseChanges(item *tray.Item, p *pulse.Pulse) {
 
 func refreshMenu(item *tray.Item, p *pulse.Pulse) {
 	clearMenuItems()
-
 	renderSinks(item, p)
-
-	separator, _ := item.Menu().AddChild(tray.MenuItemType(tray.Separator))
-	addMenuItem(separator)
-
-	quitItem, _ := item.Menu().AddChild(
-		tray.MenuItemLabel("Quit"),
-		tray.MenuItemHandler(tray.ClickedHandler(func(data any, timestamp uint32) error {
-			stopPulseMonitoring()
-			if globalDoneChannel != nil {
-				close(globalDoneChannel)
-			}
-			return nil
-		})),
-	)
-	addMenuItem(quitItem)
+	renderOptions(item, p)
 }
 
-// func triggerManualRefresh(item *tray.Item, p *pulse.Pulse) {
-// 	refreshMenu(item, p)
-// }
+func triggerManualRefresh(item *tray.Item, p *pulse.Pulse) {
+	p.UpdateConfig()
+	refreshMenu(item, p)
+}
 
 func resetMonitoringState() {
 	lastKnownDefaultSink = ""

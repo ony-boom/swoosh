@@ -33,21 +33,8 @@ func Init(p *pulse.Pulse) {
 
 	defer item.Close()
 
-	// Initial render of sinks
 	renderSinks(item, p)
-
-	separator, _ := item.Menu().AddChild(tray.MenuItemType(tray.Separator))
-	addMenuItem(separator)
-
-	quitItem, _ := item.Menu().AddChild(
-		tray.MenuItemLabel("Quit"),
-		tray.MenuItemHandler(tray.ClickedHandler(func(data any, timestamp uint32) error {
-			stopPulseMonitoring()
-			close(done)
-			return nil
-		})),
-	)
-	addMenuItem(quitItem)
+	renderOptions(item, p)
 
 	<-done
 }

@@ -92,6 +92,33 @@ SWOOSH_STARTUP_DELAY=5 swoosh
 - Try with a startup delay: `SWOOSH_STARTUP_DELAY=5 swoosh`
 - Use the systemd service for proper dependency ordering
 
+## Configuration
+
+Swoosh automatically creates a configuration file at `~/.config/swoosh/config.json` (or `$XDG_CONFIG_HOME/swoosh/config.json` if the environment variable is set) on first run.
+
+The configuration file supports the following options:
+
+### Available Options
+
+- **`hideSink`** (array of strings): List of sink IDs to hide from the menu
+- **`pollIntervalSeconds`** (integer): How often to check for audio changes in seconds (default: 2)
+
+### Example Configuration
+
+```json
+{
+ "hideSink": ["alsa_output.pci-0000_00_1f.3.analog-stereo"],
+ "pollIntervalSeconds": 5
+}
+```
+
+### Configuration Details
+
+- All configuration options are optional - missing options will use default values
+- Changes to the configuration file require restarting swoosh to take effect
+- The config file is created with default values on first run for easy editing
+- Invalid configuration files will fall back to default settings with error logging
+
 **Roadmap:**
 
 - [ ] List available audio inputs (sources)

@@ -2,10 +2,12 @@ package pulse
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/jfreymuth/pulse"
 	"github.com/jfreymuth/pulse/proto"
+	"github.com/ony-boom/swoosh/config"
 )
 
 func NewPulse() (*Pulse, error) {
@@ -25,6 +27,7 @@ func NewPulseWithRetry(maxWaitTime, initialDelay time.Duration) (*Pulse, error) 
 		if err == nil {
 			return &Pulse{
 				client: c,
+				config: config.New(),
 			}, nil
 		}
 		time.Sleep(delay)
@@ -68,10 +71,18 @@ func (p *Pulse) ListSinks() ([]*SimpleSink, error) {
 	}
 
 	for _, sink := range pulseSinks {
+		if p.IsSinkHidden(sink.ID()) {
+			continue
+		}
+
 		sinks = append(sinks, simpleSinkFromPulse(sink))
 	}
 
 	return sinks, err
+}
+
+func (p *Pulse) IsSinkHidden(sinkId string) bool {
+	return slices.Contains(p.config.HideSink, sinkId)
 }
 
 func (p *Pulse) SetDefaultSink(sinkId string) error {
@@ -89,6 +100,14 @@ func (p *Pulse) IsDefaultSink(s *SimpleSink) bool {
 	defaultSink, _ := p.DefaultSink()
 
 	return defaultSink.ID == s.ID
+}
+
+func (p *Pulse) UpdateConfig() {
+	p.config = config.New()
+}
+
+func (p *Pulse) GetPollInterval() time.Duration {
+	return time.Duration(p.config.PollIntervalSeconds) * time.Second
 }
 
 func (p *Pulse) Close() {

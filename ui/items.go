@@ -89,3 +89,29 @@ func renderSinks(item *tray.Item, p *pulse.Pulse) {
 		}))
 	}
 }
+
+func renderOptions(item *tray.Item, p *pulse.Pulse) {
+	separator, _ := item.Menu().AddChild(tray.MenuItemType(tray.Separator))
+	addMenuItem(separator)
+
+	refreshItem, _ := item.Menu().AddChild(
+		tray.MenuItemLabel("Refresh"),
+		tray.MenuItemHandler(tray.ClickedHandler(func(data any, timestamp uint32) error {
+			triggerManualRefresh(item, p)
+			return nil
+		})),
+	)
+	addMenuItem(refreshItem)
+
+	quitItem, _ := item.Menu().AddChild(
+		tray.MenuItemLabel("Quit"),
+		tray.MenuItemHandler(tray.ClickedHandler(func(data any, timestamp uint32) error {
+			stopPulseMonitoring()
+			if globalDoneChannel != nil {
+				close(globalDoneChannel)
+			}
+			return nil
+		})),
+	)
+	addMenuItem(quitItem)
+}
