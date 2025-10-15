@@ -12,6 +12,7 @@ type state struct {
 	done                 chan struct{}
 	lastKnownDefaultSink string
 	stopRefresh          chan bool
+	sinkCount            int
 }
 
 type UI struct {
@@ -26,7 +27,8 @@ func Init(p *pulse.Pulse) {
 		pulse: p,
 		item:  newTray(),
 		state: &state{
-			done: make(chan struct{}),
+			done:      make(chan struct{}),
+			sinkCount: 0,
 		},
 	}
 
