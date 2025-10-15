@@ -31,6 +31,7 @@ Using the package from the flake:
   home.packages = with pkgs; [
     inputs.swoosh.packages.${pkgs.system}.swoosh
   ];
+}
 ```
 
 Or you can install directly like this:
