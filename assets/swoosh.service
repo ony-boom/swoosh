@@ -1,7 +1,7 @@
 [Unit]
 Description=Swoosh Audio Output Switcher
-After=graphical-session.target pulseaudio.service
-Wants=pulseaudio.service
+After=graphical-session.target pulseaudio.service pipewire.service
+Wants=pulseaudio.service pipewire.service
 PartOf=graphical-session.target
 
 [Service]
@@ -15,4 +15,4 @@ Environment=DISPLAY=:0
 KillMode=process
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target
