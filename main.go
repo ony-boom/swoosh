@@ -23,6 +23,8 @@ func main() {
 		log.Printf("Error: %v", err)
 		log.Println("Make sure your audio server is running and try again.")
 		log.Println("Tip: You can set SWOOSH_STARTUP_DELAY=5 to wait 5 seconds before starting.")
+		// TODO: Consider adding a retry mechanism here
+		// if not use os.Exit(1) to indicate failure
 		return
 	}
 
