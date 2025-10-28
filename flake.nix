@@ -18,7 +18,6 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
-
         packages.default = pkgs.buildGoModule {
           src = self;
           name = "swoosh";
@@ -31,37 +30,43 @@
             go
           ];
         };
+      }
+    )
+    // {
+      nixosModules.default =
+        {
+          config,
+          lib,
+          pkgs,
+          ...
+        }:
+        {
+          options.programs.swoosh.enable = lib.mkEnableOption "Swoosh Audio Output Switcher user service";
 
-        nixosModules.default =
-          { config, lib, ... }:
-          {
-            options.programs.swoosh.enable = lib.mkEnableOption "Swoosh Audio Output Switcher user service";
-
-            config = lib.mkIf config.programs.swoosh.enable {
-              systemd.user.services.swoosh = {
-                description = "Swoosh Audio Output Switcher";
-                after = [
-                  "graphical-session.target"
-                  "pulseaudio.service"
-                  "pipewire.service"
-                ];
-                wants = [
-                  "pulseaudio.service"
-                  "pipewire.service"
-                ];
-                partOf = [ "graphical-session.target" ];
-                wantedBy = [ "graphical-session.target" ];
-                serviceConfig = {
-                  Type = "simple";
-                  ExecStart = "${self.packages.${system}.default}/bin/swoosh";
-                  Restart = "on-failure";
-                  RestartSec = 3;
-                  Environment = "DISPLAY=:0";
-                  KillMode = "process";
-                };
+          config = lib.mkIf config.programs.swoosh.enable {
+            systemd.user.services.swoosh = {
+              description = "Swoosh Audio Output Switcher";
+              after = [
+                "graphical-session.target"
+                "pulseaudio.service"
+                "pipewire.service"
+              ];
+              wants = [
+                "pulseaudio.service"
+                "pipewire.service"
+              ];
+              partOf = [ "graphical-session.target" ];
+              wantedBy = [ "graphical-session.target" ];
+              serviceConfig = {
+                Type = "simple";
+                ExecStart = "${self.packages.${pkgs.system}.default}/bin/swoosh";
+                Restart = "on-failure";
+                RestartSec = 3;
+                Environment = "DISPLAY=:0";
+                KillMode = "process";
               };
             };
           };
-      }
-    );
+        };
+    };
 }
