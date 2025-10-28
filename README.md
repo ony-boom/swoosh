@@ -23,7 +23,7 @@ Using the package from the flake:
 {
   modules = [
     # ...
-    inputs.swoosh.nixosModules.x86_64-linux.swoosh # or aarch64-linux
+    inputs.swoosh.nixosModules.default # or aarch64-linux
     {
       programs.swoosh.enable = true;
     }
