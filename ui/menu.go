@@ -2,8 +2,10 @@ package ui
 
 import (
 	"log"
+	"os"
 
 	"deedles.dev/tray"
+	"github.com/ony-boom/swoosh/logger"
 )
 
 func newTray() *tray.Item {
@@ -18,7 +20,8 @@ func newTray() *tray.Item {
 		})),
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Error("%v", err)
+		os.Exit(1)
 	}
 
 	return item

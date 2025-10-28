@@ -136,7 +136,7 @@ The configuration file supports the following options:
 - [ ] List available audio inputs (sources)
 - [x] Allow simple configuration (e.g. polling interval, hide source, ...)
 - [ ] Better way to detect signal changes (currently polling) or using a different tray library that allow rerendering every time the menu is opened
-- [ ] Log to a file instead of stdout
+- [x] Log to a file instead of stdout
 
 **Alternatives:**
 

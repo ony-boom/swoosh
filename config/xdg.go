@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/ony-boom/swoosh/utils"
 )
 
-func basePath() string {
+func BasePath() string {
 	xdgConfigDir, ok := os.LookupEnv("XDG_CONFIG_HOME")
 
 	if !ok {
@@ -21,18 +23,10 @@ func basePath() string {
 	return filepath.Join(xdgConfigDir, "swoosh")
 }
 
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
-}
-
 func xdgConfigFile(defaultConfig Config) (string, error) {
-	configDir := basePath()
+	configDir := BasePath()
 
-	if !exists(configDir) {
+	if !utils.PathExist(configDir) {
 		err := os.Mkdir(configDir, 0o755)
 		if err != nil {
 			return "", fmt.Errorf("failed to create config dir: %v", err)
@@ -41,7 +35,7 @@ func xdgConfigFile(defaultConfig Config) (string, error) {
 
 	configFile := filepath.Join(configDir, "config.json")
 
-	if !exists(configFile) {
+	if !utils.PathExist(configFile) {
 		jsonData, err := json.MarshalIndent(defaultConfig, "", " ")
 		if err != nil {
 			return "", fmt.Errorf("failed to marshal default config file: %v", err)

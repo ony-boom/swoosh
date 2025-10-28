@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ony-boom/swoosh/logger"
 	"github.com/ony-boom/swoosh/pulse"
 	"github.com/ony-boom/swoosh/ui"
 )
@@ -20,9 +21,9 @@ func main() {
 
 	p, err := pulse.NewPulse()
 	if err != nil {
-		log.Printf("Error: %v", err)
-		log.Println("Make sure your audio server is running and try again.")
-		log.Println("Tip: You can set SWOOSH_STARTUP_DELAY=5 to wait 5 seconds before starting.")
+		logger.Log.Error("")
+		logger.Log.Info("Tip: You can set SWOOSH_STARTUP_DELAY=5 to wait 5 seconds before starting.")
+		logger.Log.Error("Error: %v", err)
 		// TODO: Consider adding a retry mechanism here
 		// if not use os.Exit(1) to indicate failure
 		return

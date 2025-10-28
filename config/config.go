@@ -20,7 +20,7 @@ var defaultConfig = Config{
 func New() Config {
 	filePath, err := xdgConfigFile(defaultConfig)
 	if err != nil {
-		log.Println(err)
+		log.Println()
 		return defaultConfig
 	}
 

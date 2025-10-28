@@ -34,9 +34,9 @@ func Init(p *pulse.Pulse) {
 
 	defer ui.item.Close()
 
-	ui.startPulseMonitoring()
 	ui.renderSinks()
 	ui.renderOptions()
+	ui.startPulseMonitoring()
 
 	<-ui.state.done
 }

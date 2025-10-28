@@ -1,10 +1,11 @@
 package ui
 
 import (
-	"log"
+	"os"
 	"time"
 
 	"deedles.dev/tray"
+	"github.com/ony-boom/swoosh/logger"
 )
 
 const MAX_LENGTH = 32 // Maximum length for a menu item label
@@ -72,7 +73,8 @@ func (ui *UI) renderSinks() {
 				}
 			}
 			if err := ui.pulse.SetDefaultSink(currentSink.ID); err != nil {
-				log.Fatalf("Failed to set default sink: %v", err)
+				logger.Log.Error("Failed to set default sink: %v", err)
+				os.Exit(1)
 			}
 			// Update the monitoring state to trigger refresh on next check
 			go func() {
